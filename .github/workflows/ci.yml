@@ -3,8 +3,7 @@ name: Spotless and Build
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - "main"
+    types: [synchronize]
 
 jobs:
   format-and-build:
