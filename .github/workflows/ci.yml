@@ -1,10 +1,6 @@
 name: Spotless and Build
 
-on:
-  workflow_dispatch:
-  push: 
-    branches:
-      - "main"
+on: [push, pull_request]
 
 jobs:
   format-and-build:
