@@ -18,21 +18,21 @@ import net.minecraft.client.resources.language.I18n;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-public class ConfigHolder implements Comparable<ConfigHolder> {
+public class ConfigHolder<T> implements Comparable<ConfigHolder<T>> {
     private final Configurable parent;
-    private final Config configObj;
+    private final Config<T> configObj;
     private final String fieldName;
     private final String i18nKey;
     private final boolean visible;
     private final Type valueType;
     private final boolean allowNull;
 
-    private final Object defaultValue;
+    private final T defaultValue;
 
     private boolean userEdited = false;
 
-    public <T extends Configurable & Translatable> ConfigHolder(
-            T parent, Config configObj, String fieldName, String i18nKey, boolean visible, Type valueType) {
+    public <P extends Configurable & Translatable> ConfigHolder(
+            P parent, Config<T> configObj, String fieldName, String i18nKey, boolean visible, Type valueType) {
         this.parent = parent;
         this.configObj = configObj;
         this.fieldName = fieldName;
@@ -52,7 +52,7 @@ public class ConfigHolder implements Comparable<ConfigHolder> {
     }
 
     public Stream<String> getValidLiterals() {
-        if (valueType instanceof Class clazz && clazz.isEnum()) {
+        if (valueType instanceof Class<?> clazz && clazz.isEnum()) {
             return EnumUtils.getEnumConstants(clazz).stream().map(EnumUtils::toJsonFormat);
         }
         if (valueType.equals(Boolean.class)) {
@@ -109,7 +109,7 @@ public class ConfigHolder implements Comparable<ConfigHolder> {
         return ((Translatable) parent).getTranslation(getFieldName() + ".description");
     }
 
-    public Object getValue() {
+    public T getValue() {
         return configObj.get();
     }
 
@@ -117,21 +117,21 @@ public class ConfigHolder implements Comparable<ConfigHolder> {
         if (configObj.get() == null) return "(null)";
 
         if (isEnum()) {
-            return EnumUtils.toNiceString((Enum) this.getValue());
+            return EnumUtils.toNiceString((Enum<?>) this.getValue());
         }
 
         return configObj.get().toString();
     }
 
     public boolean isEnum() {
-        return valueType instanceof Class clazz && clazz.isEnum();
+        return valueType instanceof Class<?> clazz && clazz.isEnum();
     }
 
-    public Object getDefaultValue() {
+    public T getDefaultValue() {
         return defaultValue;
     }
 
-    public void setValue(Object value) {
+    public void setValue(T value) {
         if (value == null && !allowNull) {
             WynntilsMod.warn("Trying to set null to config " + getJsonName() + ". Will be replaced by default.");
             reset();
@@ -141,6 +141,10 @@ public class ConfigHolder implements Comparable<ConfigHolder> {
         configObj.updateConfig(value);
         parent.updateConfigOption(this);
         userEdited = true;
+    }
+
+    void restoreValue(Object value) {
+        setValue((T) value);
     }
 
     public boolean valueChanged() {
@@ -171,14 +175,14 @@ public class ConfigHolder implements Comparable<ConfigHolder> {
         userEdited = false;
     }
 
-    public Object tryParseStringValue(String value) {
+    public <E extends Enum<E>> T tryParseStringValue(String value) {
         if (isEnum()) {
-            return EnumUtils.fromJsonFormat((Class<? extends Enum<?>>) getType(), value);
+            return (T) EnumUtils.fromJsonFormat((Class<E>) getType(), value);
         }
 
         try {
             Class<?> wrapped = ClassUtils.primitiveToWrapper(((Class<?>) valueType));
-            return wrapped.getConstructor(String.class).newInstance(value);
+            return (T) wrapped.getConstructor(String.class).newInstance(value);
         } catch (Exception ignored) {
         }
 
