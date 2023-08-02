@@ -12,9 +12,8 @@ import com.wynntils.core.components.Models;
 import com.wynntils.core.config.Category;
 import com.wynntils.core.config.Config;
 import com.wynntils.core.config.ConfigCategory;
-import com.wynntils.core.config.ConfigHolder;
-import com.wynntils.core.config.RegisterConfig;
 import com.wynntils.core.consumers.features.Feature;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.RenderEvent;
 import com.wynntils.mc.event.RenderLevelEvent;
@@ -48,25 +47,25 @@ import org.joml.Vector4f;
 public class WorldWaypointDistanceFeature extends Feature {
     private static final WaypointPoi DUMMY_WAYPOINT = new WaypointPoi(() -> null);
 
-    @RegisterConfig
+    @Persisted
     public final Config<CustomColor> textColor = new Config<>(CommonColors.WHITE);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Float> backgroundOpacity = new Config<>(0.2f);
 
-    @RegisterConfig
+    @Persisted
     public final Config<TextShadow> textShadow = new Config<>(TextShadow.NONE);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Float> bottomBoundingDistance = new Config<>(100f);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Float> topBoundingDistance = new Config<>(40f);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Float> horizontalBoundingDistance = new Config<>(30f);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Integer> maxWaypointTextDistance = new Config<>(5000);
 
     private List<RenderedMarkerInfo> renderedMarkers = new ArrayList<>();
@@ -295,20 +294,20 @@ public class WorldWaypointDistanceFeature extends Feature {
 
     // limit the bounding distance to prevent divided by zero in getBoundingIntersectPoint
     @Override
-    protected void onConfigUpdate(ConfigHolder<?> unknownConfigHolder) {
+    protected void onConfigUpdate(Config<?> unknownConfig) {
         Window window = McUtils.window();
 
-        switch (unknownConfigHolder.getFieldName()) {
+        switch (unknownConfig.getFieldName()) {
             case "topBoundingDistance", "bottomBoundingDistance" -> {
-                ConfigHolder<Float> configHolder = (ConfigHolder<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledHeight() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledHeight() * 0.4f);
+                Config<Float> config = (Config<Float>) unknownConfig;
+                if (config.getValue() > window.getGuiScaledHeight() * 0.4f) {
+                    config.setValue(window.getGuiScaledHeight() * 0.4f);
                 }
             }
             case "horizontalBoundingDistance" -> {
-                ConfigHolder<Float> configHolder = (ConfigHolder<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledWidth() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledWidth() * 0.4f);
+                Config<Float> config = (Config<Float>) unknownConfig;
+                if (config.getValue() > window.getGuiScaledWidth() * 0.4f) {
+                    config.setValue(window.getGuiScaledWidth() * 0.4f);
                 }
             }
         }
