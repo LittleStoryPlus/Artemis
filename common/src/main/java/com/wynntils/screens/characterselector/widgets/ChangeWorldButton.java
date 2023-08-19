@@ -1,6 +1,6 @@
 /*
  * Copyright © Wynntils 2022-2023.
- * This file is released under AGPLv3. See LICENSE for full license details.
+ * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.screens.characterselector.widgets;
 
@@ -46,7 +46,7 @@ public class ChangeWorldButton extends WynntilsButton {
                 this.width,
                 this.height,
                 0,
-                0,
+                isHovered ? 0 : Texture.CHANGE_WORLD_BUTTON.height() / 2,
                 Texture.CHANGE_WORLD_BUTTON.width(),
                 Texture.CHANGE_WORLD_BUTTON.height() / 2,
                 Texture.CHANGE_WORLD_BUTTON.width(),

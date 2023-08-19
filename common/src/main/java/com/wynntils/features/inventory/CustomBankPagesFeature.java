@@ -1,6 +1,6 @@
 /*
  * Copyright © Wynntils 2023.
- * This file is released under AGPLv3. See LICENSE for full license details.
+ * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.features.inventory;
 
@@ -293,7 +293,7 @@ public class CustomBankPagesFeature extends Feature {
 
         // If we're still here, we have a string config
         Config<String> config = (Config<String>) unknownConfig;
-        String valueString = config.getValue();
+        String valueString = config.get();
 
         List<Integer> originalValues = parseStringToDestinations(valueString, containerType);
 

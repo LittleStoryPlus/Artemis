@@ -1,6 +1,6 @@
 /*
  * Copyright © Wynntils 2022-2023.
- * This file is released under AGPLv3. See LICENSE for full license details.
+ * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.screens.characterselector.widgets;
 
@@ -30,7 +30,7 @@ public class ClassSelectionAddButton extends WynntilsButton {
 
     public ClassSelectionAddButton(
             int x, int y, int width, int height, CharacterSelectorScreen characterSelectorScreen) {
-        super(x, y, width, height, Component.literal("Class Selection Delete Button"));
+        super(x, y, width, height, Component.literal("Class Selection Add Button"));
         this.characterSelectorScreen = characterSelectorScreen;
     }
 
@@ -45,18 +45,18 @@ public class ClassSelectionAddButton extends WynntilsButton {
     public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         RenderUtils.drawTexturedRect(
                 poseStack,
-                Texture.ADD_BUTTON.resource(),
+                Texture.ADD_ICON_OFFSET.resource(),
                 this.getX(),
                 this.getY(),
                 0,
                 this.width,
                 this.height,
                 0,
-                characterSelectorScreen.getFirstNewCharacterSlot() == -1 ? Texture.ADD_BUTTON.height() / 2 : 0,
-                Texture.ADD_BUTTON.width(),
-                Texture.ADD_BUTTON.height() / 2,
-                Texture.ADD_BUTTON.width(),
-                Texture.ADD_BUTTON.height());
+                characterSelectorScreen.getFirstNewCharacterSlot() == -1 ? Texture.ADD_ICON_OFFSET.height() / 2 : 0,
+                Texture.ADD_ICON_OFFSET.width(),
+                Texture.ADD_ICON_OFFSET.height() / 2,
+                Texture.ADD_ICON_OFFSET.width(),
+                Texture.ADD_ICON_OFFSET.height());
 
         if (isHovered) {
             RenderUtils.drawTooltipAt(

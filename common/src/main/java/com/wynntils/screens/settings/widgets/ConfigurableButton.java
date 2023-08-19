@@ -1,13 +1,12 @@
 /*
  * Copyright © Wynntils 2022-2023.
- * This file is released under AGPLv3. See LICENSE for full license details.
+ * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.screens.settings.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.consumers.features.Configurable;
 import com.wynntils.core.consumers.features.Feature;
-import com.wynntils.core.consumers.features.Translatable;
 import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.base.widgets.WynntilsButton;
@@ -30,7 +29,7 @@ public class ConfigurableButton extends WynntilsButton {
     private final List<Component> descriptionTooltip;
 
     public ConfigurableButton(int x, int y, int width, int height, Configurable configurable) {
-        super(x, y, width, height, Component.literal(((Translatable) configurable).getTranslatedName()));
+        super(x, y, width, height, Component.literal(configurable.getTranslatedName()));
         this.configurable = configurable;
 
         if (configurable instanceof Feature feature) {
@@ -56,8 +55,7 @@ public class ConfigurableButton extends WynntilsButton {
         FontRenderer.getInstance()
                 .renderText(
                         poseStack,
-                        StyledText.fromString(
-                                (isOverlay ? "   " : "") + ((Translatable) configurable).getTranslatedName()),
+                        StyledText.fromString((isOverlay ? "   " : "") + configurable.getTranslatedName()),
                         this.getX(),
                         this.getY(),
                         color,
