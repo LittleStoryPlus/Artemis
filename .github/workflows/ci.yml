@@ -50,21 +50,21 @@ jobs:
             **/build/libs/*-quilt+MC-*.jar
           if-no-files-found: error
 
-			- name: Genrate release tag
-	 			run: |
-		 			echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-					touch release.txt
-		 			echo "::set-output name=status::success"
+      - name: Genrate release tag
+        run: |
+          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+          touch release.txt
+          echo "::set-output name=status::success"
 
-	 		- name: Upload to release
-				uses: softprops/action-gh-release@v1
-				if: steps.tag.outputs.status == 'success' && !cancelled()
-				env:
-					GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-		 		with:
-		 			tag_name: ${{ steps.tag.outputs.release_tag }}
-					body_path: release.txt
-		 			files: |
-						**/build/libs/*-fabric+MC-*.jar
-						**/build/libs/*-forge+MC-*.jar
-						**/build/libs/*-quilt+MC-*.jar
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        if: steps.tag.outputs.status == 'success' && !cancelled()
+        env:
+				  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          body_path: release.txt
+          files: |
+            **/build/libs/*-fabric+MC-*.jar
+            **/build/libs/*-forge+MC-*.jar
+            **/build/libs/*-quilt+MC-*.jar
