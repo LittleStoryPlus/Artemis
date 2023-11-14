@@ -67,6 +67,6 @@ jobs:
           tag_name: $(date +"%Y.%m.%d-%H%M")
           body_path: release.txt
           files: |
-            **/build/libs/*-fabric+MC-*.jar
-            **/build/libs/*-forge+MC-*.jar
-            **/build/libs/*-quilt+MC-*.jar
+            /home/runner/work/Artemis/Artemis/fabric/build/libs/*-fabric+MC-*.jar
+            /home/runner/work/Artemis/Artemis/forge/build/libs/*-forge+MC-*.jar
+            /home/runner/work/Artemis/Artemis/quilt/build/libs/*-quilt+MC-*.jar
