@@ -58,8 +58,8 @@ jobs:
           echo "### Changelogs:" >> release.txt
           echo "$commits" | while IFS= read -r line; do
             echo "- $line" >> release.txt
-          echo "and more..." >> release.txt
           done
+          echo "and more..." >> release.txt
 
       - name: Upload to release
         uses: softprops/action-gh-release@v1
