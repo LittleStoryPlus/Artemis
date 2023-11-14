@@ -52,7 +52,6 @@ jobs:
 
       - name: Genrate release tag
         run: |
-          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
           touch release.txt
           commits=$(curl -s "https://api.github.com/repos/Wynntils/Artemis/commits?per_page=5" | jq -r '.[].commit.message')
           echo "### Changelogs:" >> release.txt
@@ -65,7 +64,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
+          tag_name: $(date +"%Y.%m.%d-%H%M")
           body_path: release.txt
           files: |
             **/build/libs/*-fabric+MC-*.jar
