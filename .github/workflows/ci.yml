@@ -54,6 +54,11 @@ jobs:
         run: |
           echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
           touch release.txt
+          commits=$(curl -s "https://api.github.com/repos/Wynntils/Artemis/commits?per_page=5" | jq -r '.[].commit.message')
+          echo "### Changelogs:" >> release.txt
+          echo "$commits" | while IFS= read -r line; do
+          echo "- $line" >> release.txt
+          done
           echo "::set-output name=status::success"
 
       - name: Upload to release
