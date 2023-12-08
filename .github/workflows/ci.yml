@@ -15,8 +15,7 @@ jobs:
 
       - name: Set up mirror
         run: |
-          sed -i -E 's|https://raw.githubusercontent.com/Wynntils/WynntilsWebsite-API/[0-9a-z]+|https://gitea.com/wuki/WynntilsWebsite-API/raw/branch/master|g' common/src/main/resources/assets/wynntils/urls.json
-          sed -i -E 's|https://raw.githubusercontent.com/Wynntils/Reference/[0-9a-z]+|https://gitea.com/wuki/Reference/raw/branch/main|g'  common/src/main/resources/assets/wynntils/urls.json
+          sed -i -E 's|https://raw.githubusercontent.com/Wynntils/Static-Storage/[0-9a-z]+|https://gitea.com/wuki/Static-Storage/raw/branch/main|g' common/src/main/resources/assets/wynntils/urls.json
 
       - name: Set up JDK
         uses: actions/setup-java@v3
