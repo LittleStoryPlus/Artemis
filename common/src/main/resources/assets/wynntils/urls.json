@@ -150,7 +150,7 @@
   },
   {
     "id": "dataStaticMaps",
-    "md5": "21815b35ea93e21987898ff8738c98e4",
+    "md5": "3d1825eee8011ca34fce25a5a3597fc0",
     "url": "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/maps.json"
   },
   {
@@ -182,6 +182,11 @@
     "id": "dataStaticShinyStats",
     "md5": "c1837281e4b45af5683189ebd465d1cc",
     "url": "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Data-Storage/shiny_stats.json"
+  },
+  {
+    "id": "dataStaticShinyStats",
+    "md5": "2dbc0fdde50512b64828d5642bb480b6",
+    "url": "https://raw.githubusercontent.com/Wynntils/WynntilsWebsite-API/master/shiny_stats.json"
   },
   {
     "id": "dataStaticSplashes",
