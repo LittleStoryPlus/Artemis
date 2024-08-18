@@ -11,36 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up mirror
         run: |
           sed -i -E 's|https://raw.githubusercontent.com/Wynntils/Static-Storage/[0-9a-z]+|https://gitea.com/wuki/Static-Storage/raw/branch/main|g' common/src/main/resources/assets/wynntils/urls.json
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
 
       - name: Cache Gradle data
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .gradle
           key: ${{ runner.os }}-gradle--${{ hashFiles('**/settings.gradle', '**/gradle.properties') }}
 
       - name: Format with spotless
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: spotlessApply
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: buildDependents -x spotlessCheck
 
       - name: Upload build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: |
@@ -61,7 +61,7 @@ jobs:
           echo "and more..." >> release.txt
 
       - name: Upload to release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
