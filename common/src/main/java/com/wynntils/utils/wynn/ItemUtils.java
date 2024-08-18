@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2021-2023.
+ * Copyright © Wynntils 2021-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.utils.wynn;
@@ -7,6 +7,8 @@ package com.wynntils.utils.wynn;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.gear.type.GearTier;
+import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.game.GatheringToolItem;
 import com.wynntils.models.items.properties.GearTypeItemProperty;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,13 @@ public final class ItemUtils {
         return gearItemOpt.get().getGearType().isWeapon();
     }
 
+    public static boolean isGatheringTool(ItemStack itemStack) {
+        Optional<WynnItem> wynnItemOpt = Models.Item.getWynnItem(itemStack);
+        return wynnItemOpt
+                .filter(wynnItem -> wynnItem instanceof GatheringToolItem)
+                .isPresent();
+    }
+
     public static StyledText getItemName(ItemStack itemStack) {
         return StyledText.fromComponent(itemStack.getHoverName());
     }
@@ -47,14 +56,10 @@ public final class ItemUtils {
     public static boolean isItemEqual(ItemStack oldItem, ItemStack newItem) {
         if (oldItem == null || newItem == null) return oldItem != newItem;
 
-        if (!newItem.getItem().equals(oldItem.getItem())
-                || newItem.getDamageValue() != oldItem.getDamageValue()
-                || newItem.getCount() != oldItem.getCount()
-                || !ItemStack.isSameItemSameTags(oldItem, newItem)) {
-            return false;
-        }
-
-        return true;
+        return newItem.getItem().equals(oldItem.getItem())
+                && newItem.getDamageValue() == oldItem.getDamageValue()
+                && newItem.getCount() == oldItem.getCount()
+                && ItemStack.isSameItemSameComponents(oldItem, newItem);
     }
 
     public static MutableComponent getNonGearDescription(ItemStack itemStack, String gearName) {

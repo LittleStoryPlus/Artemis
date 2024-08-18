@@ -119,7 +119,6 @@ public final class ItemSharingScreen extends WynntilsScreen {
 
     @Override
     public void onClose() {
-        super.onClose();
         McUtils.mc().setScreen(previousScreen);
     }
 
@@ -192,8 +191,8 @@ public final class ItemSharingScreen extends WynntilsScreen {
 
     private void shareItem(String target) {
         switch (target) {
-            case "guild" -> Handlers.Command.sendCommand("g " + encodedItem.toUtf16String());
-            case "party" -> Handlers.Command.sendCommand("p " + encodedItem.toUtf16String());
+            case "guild" -> Handlers.Command.sendCommandImmediately("g " + encodedItem.toUtf16String());
+            case "party" -> Handlers.Command.sendCommandImmediately("p " + encodedItem.toUtf16String());
             case "save" -> {
                 ItemStack itemStackToSave = itemStack;
 
@@ -227,14 +226,12 @@ public final class ItemSharingScreen extends WynntilsScreen {
                     backgroundX + 15,
                     backgroundY + 25,
                     10,
-                    10,
                     Component.translatable("screens.wynntils.itemSharing.extended.name"),
                     Models.ItemEncoding.extendedIdentificationEncoding.get(),
                     Texture.ITEM_SHARING_BACKGROUND.width() - 30,
-                    (b) -> {
-                        if (b == 0) {
-                            Models.ItemEncoding.extendedIdentificationEncoding.store(
-                                    !Models.ItemEncoding.extendedIdentificationEncoding.get());
+                    (c, b) -> {
+                        if (b) {
+                            Models.ItemEncoding.extendedIdentificationEncoding.store(b);
                             refreshPreview();
                         }
                     },
@@ -248,13 +245,12 @@ public final class ItemSharingScreen extends WynntilsScreen {
                     backgroundX + 15,
                     backgroundY + 25,
                     10,
-                    10,
                     Component.translatable("screens.wynntils.itemSharing.itemName.name"),
                     Models.ItemEncoding.shareItemName.get(),
                     Texture.ITEM_SHARING_BACKGROUND.width() - 30,
-                    (b) -> {
-                        if (b == 0) {
-                            Models.ItemEncoding.shareItemName.store(!Models.ItemEncoding.shareItemName.get());
+                    (c, b) -> {
+                        if (b) {
+                            Models.ItemEncoding.shareItemName.store(b);
                             refreshPreview();
                         }
                     },

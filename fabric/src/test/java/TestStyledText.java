@@ -1,10 +1,12 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.core.text.StyledTextPart;
 import com.wynntils.utils.colors.CustomColor;
+import com.wynntils.utils.type.IterationDecision;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,6 +63,220 @@ public class TestStyledText {
                 expectedNoFormat,
                 styledText.getString(PartStyle.StyleType.NONE),
                 "StyledText.getString(NONE) returned an unexpected value.");
+    }
+
+    @Test
+    public void fromStringDoesntParseEvents_worksCorrectly() {
+        final String codedString = "§o§<1>inherited hover effect";
+        final StyledText styledText = StyledText.fromString(codedString);
+
+        // Make sure there are no events
+        for (StyledTextPart styledTextPart : styledText) {
+            Style style = styledTextPart.getPartStyle().getStyle();
+
+            if (style.getClickEvent() != null || style.getHoverEvent() != null) {
+                Assertions.fail(
+                        "StyledText.fromString() parsed events when it should not have (since it does not have any underlying events).");
+            }
+        }
+
+        // The output should look the same, as the event chars would be normal text
+        Assertions.assertEquals(
+                codedString,
+                styledText.getString(),
+                "StyledText.fromString() did not parse event-like text correctly.");
+    }
+
+    @Test
+    public void simpleEventInheritance_worksCorrectly() {
+        final Component component = Component.empty()
+                .withStyle(ChatFormatting.ITALIC)
+                .withStyle(style ->
+                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover"))))
+                .append(Component.literal("inherited hover effect"));
+        final String expected = "§o§<1>inherited hover effect";
+
+        StyledText styledText = StyledText.fromComponent(component);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+
+        StyledText fromString = StyledText.fromModifiedString(expected, styledText);
+
+        Assertions.assertEquals(
+                expected,
+                fromString.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+    }
+
+    @Test
+    public void eventInheritsImplicitly_worksCorrectly() {
+        final Component component = Component.empty()
+                .withStyle(style ->
+                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover"))))
+                .append(Component.literal("inherited hover effect"))
+                .append(Component.literal("|inherited hover effect 2 without explicit |"))
+                .append(Component.literal("after red effect").withStyle(ChatFormatting.RED));
+
+        final String expected =
+                "§<1>inherited hover effect|inherited hover effect 2 without explicit |§c§<1>after red effect";
+
+        StyledText styledText = StyledText.fromComponent(component);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+
+        StyledText fromString = StyledText.fromModifiedString(expected, styledText);
+
+        Assertions.assertEquals(
+                expected,
+                fromString.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+    }
+
+    @Test
+    public void eventInheritsImplicitlyAndResetWorks_worksCorrectly() {
+        final Component component = Component.empty()
+                .withStyle(style ->
+                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover"))))
+                .append(Component.literal("inherited hover effect"))
+                .append(Component.literal("|inherited red hover effect 2 without explicit |")
+                        .withStyle(ChatFormatting.RED))
+                .append(Component.literal("after no effect").withStyle(ChatFormatting.ITALIC));
+
+        final String expected =
+                "§<1>inherited hover effect§c§<1>|inherited red hover effect 2 without explicit |§r§o§<1>after no effect";
+
+        StyledText styledText = StyledText.fromComponent(component);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+
+        StyledText fromString = StyledText.fromModifiedString(expected, styledText);
+
+        Assertions.assertEquals(
+                expected,
+                fromString.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+    }
+
+    @Test
+    public void eventDoesntInheritIfItHasEvent_worksCorrectly() {
+        final Component component = Component.empty()
+                .withStyle(style ->
+                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover"))))
+                .append(Component.literal("inherited hover effect"))
+                .append(Component.literal("|explicit hover effect |")
+                        .withStyle(style -> style.withHoverEvent(
+                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover2")))));
+
+        final String expected = "§<1>inherited hover effect§<2>|explicit hover effect |";
+
+        StyledText styledText = StyledText.fromComponent(component);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+
+        StyledText fromString = StyledText.fromModifiedString(expected, styledText);
+
+        Assertions.assertEquals(
+                expected,
+                fromString.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+    }
+
+    @Test
+    public void differentEventsStack_worksCorrectly() {
+        final Component component = Component.empty()
+                .withStyle(style -> style.withHoverEvent(
+                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover")))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/command")))
+                .append(Component.literal("inherited hover effect"))
+                .append(Component.literal("|explicit hover effect |")
+                        .withStyle(style -> style.withHoverEvent(
+                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover2")))));
+
+        final String expected = "§[1]§<1>inherited hover effect§<2>|explicit hover effect |";
+
+        StyledText styledText = StyledText.fromComponent(component);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+
+        StyledText fromString = StyledText.fromModifiedString(expected, styledText);
+
+        Assertions.assertEquals(
+                expected,
+                fromString.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
+    }
+
+    @Test
+    public void fromModifiedStringWithEvents_shouldProduceCorrectString() {
+        final String stringWithEvents = "§c§oitalicred§9§o§<1>blue§cnonitalic§oinherited§l§<2>bold§r§[1]after";
+        final List<HoverEvent> hoverEvents = List.of(
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover")),
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover2")));
+        final List<ClickEvent> clickEvents = List.of(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/command"));
+        final StyledText originalText = StyledText.fromComponent(Component.empty()
+                .append(Component.literal("italicred")
+                        .withStyle(ChatFormatting.ITALIC)
+                        .withStyle(ChatFormatting.RED)
+                        .append(Component.literal("blue")
+                                .withStyle(ChatFormatting.BLUE)
+                                .withStyle(style -> style.withHoverEvent(hoverEvents.getFirst())))
+                        .append(Component.literal("nonitalic").withStyle(Style.EMPTY.withItalic(false)))
+                        .append(Component.literal("inherited")
+                                .append(Component.literal("bold")
+                                        .withStyle(ChatFormatting.BOLD)
+                                        .withStyle(style -> style.withHoverEvent(hoverEvents.get(1))))))
+                .append(Component.literal("after").withStyle(style -> style.withClickEvent(clickEvents.getFirst()))));
+
+        StyledText styledText = StyledText.fromModifiedString(stringWithEvents, originalText);
+
+        int hoverEventCount = 0;
+        int clickEventCount = 0;
+        for (StyledTextPart part : styledText) {
+            if (part.getPartStyle().getStyle().getClickEvent() != null) {
+                if (clickEventCount >= clickEvents.size()) {
+                    Assertions.fail("StyledText.fromModifiedString() had too many click events.");
+                }
+
+                Assertions.assertEquals(
+                        clickEvents.get(clickEventCount),
+                        part.getPartStyle().getStyle().getClickEvent(),
+                        "StyledText.fromModifiedString() did not inherit the correct click event.");
+
+                clickEventCount++;
+            }
+            if (part.getPartStyle().getStyle().getHoverEvent() != null) {
+                if (hoverEventCount >= hoverEvents.size()) {
+                    Assertions.fail("StyledText.fromModifiedString() had too many hover events.");
+                }
+
+                Assertions.assertEquals(
+                        hoverEvents.get(hoverEventCount),
+                        part.getPartStyle().getStyle().getHoverEvent(),
+                        "StyledText.fromModifiedString() did not inherit the correct hover event.");
+
+                hoverEventCount++;
+            }
+        }
+
+        Assertions.assertEquals(
+                stringWithEvents,
+                styledText.getString(PartStyle.StyleType.INCLUDE_EVENTS),
+                "StyledText.getString(INCLUDE_EVENTS) returned an unexpected value.");
     }
 
     @Test
@@ -142,6 +358,33 @@ public class TestStyledText {
                 expected,
                 styledText.getNormalized().getString(PartStyle.StyleType.NONE),
                 "StyledText.getNormalized().getString() returned an unexpected value.");
+    }
+
+    @Test
+    public void alignedStringStripping_shouldProduceCorrectString() {
+        final String badText =
+                "§c\uDAFF\uDFFC\uDB00\uDC06The war for Detlas Close Suburbs will \uDAFF\uDFFC\uDB00\uDC06start in 30 seconds.";
+        final String expected = "§cThe war for Detlas Close Suburbs will start in 30 seconds.";
+
+        StyledText styledText = StyledText.fromString(badText);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.stripAlignment().getString(PartStyle.StyleType.DEFAULT),
+                "StyledText.stripAlignment().getString() returned an unexpected value.");
+    }
+
+    @Test
+    public void normalStringStripping_shouldHaveNoEffect() {
+        final String badText = "Hello, World!";
+        final String expected = "Hello, World!";
+
+        StyledText styledText = StyledText.fromString(badText);
+
+        Assertions.assertEquals(
+                expected,
+                styledText.stripAlignment().getString(PartStyle.StyleType.DEFAULT),
+                "StyledText.stripAlignment().getString() returned an unexpected value.");
     }
 
     @Test
@@ -315,8 +558,14 @@ public class TestStyledText {
 
         StyledText styledText = StyledText.fromComponent(component);
 
+        // The reconstructed component differs in that StyledText
+        // always adds components as a sibling to an empty component
+        // Note: The comparison is done on the size of the lists, as Style has an equals method that does not
+        //       behave like it's implementation (null != false, when in reality they are equal).
         Assertions.assertEquals(
-                component, styledText.getComponent(), "StyledText.getComponent() returned an unexpected value.");
+                component.toFlatList().size(),
+                styledText.getComponent().toFlatList().size(),
+                "StyledText.getComponent() returned an unexpected value.");
     }
 
     @Test
@@ -603,7 +852,7 @@ public class TestStyledText {
 
         StyledText styledText = StyledText.fromComponent(component);
 
-        final String result = "§#240c2atest";
+        final String result = "§#240c2afftest";
         Assertions.assertEquals(
                 result,
                 styledText.getString(PartStyle.StyleType.DEFAULT),
@@ -611,7 +860,25 @@ public class TestStyledText {
     }
 
     @Test
-    public void styledText_inheritesHoverEvents() {
+    public void styledText_fromStringWithNonChatFormattingColors() {
+        final CustomColor color = new CustomColor(36, 12, 42).withAlpha(255);
+        final StyledText styledText = StyledText.fromComponent(Component.literal("test"))
+                .iterate((part, changes) -> {
+                    changes.remove(part);
+                    changes.add(part.withStyle(style -> style.withColor(color)));
+                    return IterationDecision.CONTINUE;
+                });
+
+        StyledTextPart firstPart = styledText.getFirstPart();
+        Assertions.assertNotNull(firstPart, "StyledText.fromString() did not produce a part.");
+
+        CustomColor textColor = firstPart.getPartStyle().getColor();
+
+        Assertions.assertEquals(color, textColor, "StyledText.fromString() returned an unexpected value.");
+    }
+
+    @Test
+    public void styledText_inheritsHoverEvents() {
         final Component component = Component.empty()
                 .withStyle(style ->
                         style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("hover"))))
@@ -621,7 +888,7 @@ public class TestStyledText {
 
         Assertions.assertEquals(
                 component.getStyle().getHoverEvent(),
-                styledText.getComponent().getStyle().getHoverEvent(),
+                styledText.getComponent().toFlatList().getFirst().getStyle().getHoverEvent(),
                 "StyledText.fromComponent() did not inherit the correct hover event.");
     }
 }

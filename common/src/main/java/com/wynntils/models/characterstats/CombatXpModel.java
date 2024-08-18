@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.models.characterstats;
@@ -16,15 +16,15 @@ import com.wynntils.utils.type.CappedValue;
 import com.wynntils.utils.type.TimedSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class CombatXpModel extends Model {
     /* These values are copied from a post by Salted, https://forums.wynncraft.com/threads/2-0-3-hotfix-3.310064/
      * Note that the last value is the sum of all preceding values
      */
     private static final int[] LEVEL_UP_XP_REQUIREMENTS = {
-        140, 290, 450, 610, 760, 870, 1070, 1130, 1320, 1640, 1880, 2160, 2510, 2760, 3130, 3560, 3960, 4560, 2380,
+        140, 290, 450, 610, 760, 870, 1070, 1130, 1320, 1640, 1880, 2160, 2510, 2760, 3130, 3560, 3960, 4560, 5280,
         5560, 6190, 6750, 7750, 8450, 9700, 10500, 12000, 13700, 15400, 16600, 18800, 21200, 24000, 25200, 28400, 30000,
         33500, 35000, 39000, 43000, 48000, 57300, 63500, 75000, 83000, 92000, 101000, 119000, 131000, 145000, 160000,
         185000, 205000, 225000, 246000, 285000, 313000, 340000, 375000, 432200, 472300, 515800, 562800, 613700, 668600,
@@ -65,7 +65,7 @@ public class CombatXpModel extends Model {
         if (!Models.WorldState.onWorld()) return;
 
         // We don't want to track XP before we've even got a packet to set our level
-        if (McUtils.player().experienceLevel == 0) return;
+        if (Models.CharacterStats.getLevel() == 0) return;
 
         // On first world join, we get all our current XP points (the currently gained amount for the next level), but
         // we only care about actual gains
@@ -131,7 +131,7 @@ public class CombatXpModel extends Model {
     }
 
     public CappedValue getCombatLevel() {
-        return new CappedValue(McUtils.player().experienceLevel, MAX_LEVEL);
+        return new CappedValue(Models.CharacterStats.getLevel(), MAX_LEVEL);
     }
 
     public CappedValue getXp() {
@@ -145,7 +145,7 @@ public class CombatXpModel extends Model {
     }
 
     private int getXpPointsNeededToLevelUp() {
-        int levelIndex = McUtils.player().experienceLevel - 1;
+        int levelIndex = Models.CharacterStats.getLevel() - 1;
         if (levelIndex >= LEVEL_UP_XP_REQUIREMENTS.length) {
             return Integer.MAX_VALUE;
         }

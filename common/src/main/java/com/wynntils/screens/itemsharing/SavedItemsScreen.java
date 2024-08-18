@@ -71,6 +71,10 @@ public final class SavedItemsScreen extends WynntilsContainerScreen<SavedItemsMe
     @Override
     protected void doInit() {
         super.doInit();
+
+        // If our encoding breaks for some reason, we need to clean up the item record to prevent crashes
+        Services.ItemRecord.cleanupItemRecord();
+
         this.leftPos = (this.width - Texture.ITEM_RECORD.width()) / 2;
         this.topPos = (this.height - Texture.ITEM_RECORD.height()) / 2;
 
@@ -266,10 +270,8 @@ public final class SavedItemsScreen extends WynntilsContainerScreen<SavedItemsMe
                         (int) (categoryRenderX + 97),
                         (int) categoryRenderY,
                         (int) (categoryRenderY + 8))) {
-            if (!editingCategory) {
-                editingCategory = true;
-                addCategoryInput();
-            }
+            editingCategory = true;
+            addCategoryInput();
 
             return true;
         }
@@ -366,9 +368,9 @@ public final class SavedItemsScreen extends WynntilsContainerScreen<SavedItemsMe
 
         // If scrolling past one end of the set, go to the other end
         if (newIndex >= categories.size()) {
-            currentCategory = categories.get(0);
+            currentCategory = categories.getFirst();
         } else if (newIndex < 0) {
-            currentCategory = categories.get(categories.size() - 1);
+            currentCategory = categories.getLast();
         } else {
             currentCategory = categories.get(newIndex);
         }

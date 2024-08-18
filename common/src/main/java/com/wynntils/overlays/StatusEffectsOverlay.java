@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2022-2023.
+ * Copyright © Wynntils 2022-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.overlays;
@@ -28,8 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class StatusEffectsOverlay extends Overlay {
     @Persisted
@@ -86,7 +87,7 @@ public class StatusEffectsOverlay extends Overlay {
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks, Window window) {
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, DeltaTracker deltaTracker, Window window) {
         BufferedFontRenderer.getInstance()
                 .renderTextsWithAlignment(
                         poseStack,
@@ -102,15 +103,21 @@ public class StatusEffectsOverlay extends Overlay {
     }
 
     @Override
-    public void renderPreview(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks, Window window) {
+    public void renderPreview(
+            PoseStack poseStack, MultiBufferSource bufferSource, DeltaTracker deltaTracker, Window window) {
         BufferedFontRenderer.getInstance()
                 .renderTextsWithAlignment(
                         poseStack,
                         bufferSource,
                         this.getRenderX(),
                         this.getRenderY(),
-                        List.of(new TextRenderTask(
-                                StyledText.fromString("§8⬤ §7 Purification 00:02"), textRenderSetting)),
+                        List.of(
+                                new TextRenderTask(
+                                        StyledText.fromString("§8⬤ §7 Purification 00:02"), textRenderSetting),
+                                new TextRenderTask(StyledText.fromString("§8⬤ §7 Exploding 01:12"), textRenderSetting),
+                                new TextRenderTask(StyledText.fromString("§8⬤ §7 Thorns 00:12"), textRenderSetting),
+                                new TextRenderTask(
+                                        StyledText.fromString("§8⬤ §7 Soul Point Regen 00:12"), textRenderSetting)),
                         this.getWidth(),
                         this.getHeight(),
                         this.getRenderHorizontalAlignment(),

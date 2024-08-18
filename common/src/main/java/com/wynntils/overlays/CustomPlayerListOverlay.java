@@ -1,10 +1,11 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.overlays;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.consumers.overlays.Overlay;
@@ -29,10 +30,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class CustomPlayerListOverlay extends Overlay {
     private static final Comparator<PlayerInfo> PLAYER_INFO_COMPARATOR =
@@ -46,6 +48,9 @@ public class CustomPlayerListOverlay extends Overlay {
 
     @Persisted
     public final Config<Integer> openingDuration = new Config<>(125);
+
+    @Persisted
+    public final Config<Boolean> showWorldInStream = new Config<>(false);
 
     private final AnimationPercentage animationPercentage = new AnimationPercentage(
             McUtils.options().keyPlayerList::isDown, Duration.of(openingDuration.get(), ChronoUnit.MILLIS));
@@ -72,13 +77,14 @@ public class CustomPlayerListOverlay extends Overlay {
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks, Window window) {
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, DeltaTracker deltaTracker, Window window) {
         if (!McUtils.options().keyPlayerList.isDown() && animationPercentage.finishedClosingAnimation()) return;
         renderPlayerList(poseStack, animationPercentage.getAnimation());
     }
 
     @Override
-    public void renderPreview(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks, Window window) {
+    public void renderPreview(
+            PoseStack poseStack, MultiBufferSource bufferSource, DeltaTracker deltaTracker, Window window) {
         renderPlayerList(poseStack, 1);
     }
 
@@ -99,6 +105,8 @@ public class CustomPlayerListOverlay extends Overlay {
     }
 
     private void renderPlayerList(PoseStack poseStack, double animation) {
+        RenderSystem.disableDepthTest();
+
         if (animation < 1) {
             RenderUtils.enableScissor(
                     (int) (getRenderX() + ROLL_WIDTH + HALF_WIDTH - HALF_WIDTH * animation),
@@ -113,7 +121,15 @@ public class CustomPlayerListOverlay extends Overlay {
         float categoryStart = getRenderY() + 18;
         renderCategoryTitle(poseStack, "Friends", currentDist, categoryStart);
         currentDist += DISTANCE_BETWEEN_CATEGORIES;
-        renderCategoryTitle(poseStack, Models.WorldState.getCurrentWorldName(), currentDist, categoryStart);
+        String worldCategory = Models.WorldState.onHousing()
+                ? Models.WorldState.getCurrentHousingName()
+                : Models.WorldState.getCurrentWorldName();
+
+        if (!showWorldInStream.get() && Models.WorldState.isInStream()) {
+            worldCategory = "-";
+        }
+
+        renderCategoryTitle(poseStack, worldCategory, currentDist, categoryStart);
         currentDist += DISTANCE_BETWEEN_CATEGORIES;
         renderCategoryTitle(poseStack, "Party", currentDist, categoryStart);
         currentDist += DISTANCE_BETWEEN_CATEGORIES;
@@ -128,6 +144,8 @@ public class CustomPlayerListOverlay extends Overlay {
         float middle = getRenderX() + HALF_WIDTH + ROLL_WIDTH;
         renderRoll(poseStack, (float) (middle - ROLL_WIDTH + 2 - HALF_WIDTH * animation));
         renderRoll(poseStack, (float) (middle - 2 + HALF_WIDTH * animation));
+
+        RenderSystem.enableDepthTest();
     }
 
     private void renderRoll(PoseStack poseStack, float xPos) {

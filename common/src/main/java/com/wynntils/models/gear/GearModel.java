@@ -13,18 +13,18 @@ import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.gear.type.GearType;
 import com.wynntils.models.items.items.game.CraftedGearItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
-import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.items.items.game.UnknownGearItem;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.models.stats.type.StatType;
 import com.wynntils.models.wynnitem.parsing.CraftedItemParseResults;
 import com.wynntils.models.wynnitem.parsing.WynnItemParseResult;
 import com.wynntils.models.wynnitem.parsing.WynnItemParser;
+import com.wynntils.models.wynnitem.type.ItemObtainType;
 import com.wynntils.utils.type.CappedValue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.world.item.ItemStack;
 
@@ -46,7 +46,6 @@ import net.minecraft.world.item.ItemStack;
 public final class GearModel extends Model {
     private final GearInfoRegistry gearInfoRegistry = new GearInfoRegistry();
 
-    private final GearChatEncoding gearChatEncoding = new GearChatEncoding();
     private final Map<GearBoxItem, List<GearInfo>> possibilitiesCache = new HashMap<>();
 
     public GearModel() {
@@ -72,17 +71,18 @@ public final class GearModel extends Model {
 
     public boolean canBeGearBox(GearInfo gear) {
         // If an item is pre-identified, it cannot be in a gear box
-        // If all the ways we can obtain this is by merchants, it cannot be in a gear box
+        // Also check that the item has a source that can drop boxed items
         return !gear.metaInfo().preIdentified()
                 && gear.metaInfo().obtainInfo().stream()
-                        .anyMatch(o -> !o.sourceType().isMerchant());
+                        .anyMatch(x -> ItemObtainType.BOXED_ITEMS.contains(x.sourceType()));
     }
 
     @Override
     public void reloadData() {
-        gearInfoRegistry.reloadData();
+        gearInfoRegistry.loadData();
     }
 
+    // For "real" gear items eg. from the inventory
     public GearInstance parseInstance(GearInfo gearInfo, ItemStack itemStack) {
         WynnItemParseResult result = WynnItemParser.parseItemStack(itemStack, gearInfo.getVariableStatsMap());
         if (result.tier() != gearInfo.tier()) {
@@ -90,14 +90,27 @@ public final class GearModel extends Model {
         }
 
         return GearInstance.create(
-                gearInfo, result.identifications(), result.powders(), result.rerolls(), result.shinyStat());
+                gearInfo,
+                result.identifications(),
+                result.powders(),
+                result.rerolls(),
+                result.shinyStat(),
+                result.allRequirementsMet(),
+                result.setInstance());
     }
 
+    // For parsing gear from the gear viewer
     public GearInstance parseInstance(GearInfo gearInfo, JsonObject itemData) {
         WynnItemParseResult result = WynnItemParser.parseInternalRolls(gearInfo, itemData);
 
         return GearInstance.create(
-                gearInfo, result.identifications(), result.powders(), result.rerolls(), result.shinyStat());
+                gearInfo,
+                result.identifications(),
+                result.powders(),
+                result.rerolls(),
+                result.shinyStat(),
+                false,
+                Optional.empty());
     }
 
     public CraftedGearItem parseCraftedGearItem(ItemStack itemStack) {
@@ -107,6 +120,12 @@ public final class GearModel extends Model {
         WynnItemParseResult result = WynnItemParser.parseItemStack(itemStack, possibleValuesMap);
 
         CraftedItemParseResults craftedResults = WynnItemParser.parseCraftedItem(itemStack);
+
+        if (craftedResults == null) return null;
+
+        // If the item doesn't have an effect strength, it's not a crafted gear item
+        if (craftedResults.effectStrength() == -1) return null;
+
         CappedValue durability = new CappedValue(result.durabilityCurrent(), result.durabilityMax());
         GearType gearType;
         // If it is crafted, and has a skin, then we cannot determine weapon type from item stack
@@ -141,6 +160,7 @@ public final class GearModel extends Model {
                 result.identifications(),
                 result.powders(),
                 result.powderSlots(),
+                result.allRequirementsMet(),
                 durability);
     }
 
@@ -159,18 +179,6 @@ public final class GearModel extends Model {
                 result.identifications(),
                 result.powders(),
                 result.rerolls());
-    }
-
-    public GearItem fromEncodedString(String encoded) {
-        return gearChatEncoding.fromEncodedString(encoded);
-    }
-
-    public String toEncodedString(GearItem gearItem) {
-        return gearChatEncoding.toEncodedString(gearItem);
-    }
-
-    public Matcher gearChatEncodingMatcher(String str) {
-        return gearChatEncoding.gearChatEncodingMatcher(str);
     }
 
     public GearInfo getGearInfoFromDisplayName(String gearName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2022-2023.
+ * Copyright © Wynntils 2022-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.features.inventory;
@@ -15,6 +15,8 @@ import com.wynntils.core.persisted.config.HiddenConfig;
 import com.wynntils.mc.event.ContainerCloseEvent;
 import com.wynntils.mc.event.ScreenOpenedEvent;
 import com.wynntils.mc.event.SlotRenderEvent;
+import com.wynntils.models.containers.containers.reward.RewardContainer;
+import com.wynntils.models.containers.type.FullscreenContainerProperty;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.utils.mc.McUtils;
@@ -27,7 +29,7 @@ import java.util.TreeSet;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 @ConfigCategory(Category.INVENTORY)
 public class ItemFavoriteFeature extends Feature {
@@ -43,7 +45,7 @@ public class ItemFavoriteFeature extends Feature {
     @SubscribeEvent
     public void onChestCloseAttempt(ContainerCloseEvent.Pre e) {
         if (!Models.WorldState.onWorld()) return;
-        if (!Models.Container.isLootOrRewardChest(McUtils.mc().screen)) return;
+        if (!(Models.Container.getCurrentContainer() instanceof RewardContainer)) return;
 
         boolean containsFavorite = false;
         NonNullList<ItemStack> items = ContainerUtils.getItems(McUtils.mc().screen);
@@ -80,6 +82,8 @@ public class ItemFavoriteFeature extends Feature {
 
     @SubscribeEvent
     public void onRenderSlot(SlotRenderEvent.Post event) {
+        if (Models.Container.getCurrentContainer() instanceof FullscreenContainerProperty) return;
+
         ItemStack itemStack = event.getSlot().getItem();
 
         if (isFavorited(itemStack)) {
@@ -111,7 +115,7 @@ public class ItemFavoriteFeature extends Feature {
                 Texture.FAVORITE_ICON.resource(),
                 event.getSlot().x + 10,
                 event.getSlot().y,
-                400,
+                399,
                 9,
                 9,
                 Texture.FAVORITE_ICON.width(),

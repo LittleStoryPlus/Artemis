@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.utils.render.buffered;
@@ -9,13 +9,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.Texture;
+import java.util.List;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 public final class BufferedRenderUtils {
-    private static void drawLine(
+    public static void drawLine(
             PoseStack poseStack,
             MultiBufferSource bufferSource,
             CustomColor color,
@@ -37,18 +39,10 @@ public final class BufferedRenderUtils {
                 y1 = y2;
                 y2 = tmp;
             }
-            buffer.vertex(matrix, x1 - halfWidth, y1, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 - halfWidth, y2, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x1 + halfWidth, y1, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 + halfWidth, y2, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
+            buffer.addVertex(matrix, x1 - halfWidth, y1, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 - halfWidth, y2, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x1 + halfWidth, y1, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 + halfWidth, y2, z).setColor(color.r, color.g, color.b, color.a);
         } else if (y1 == y2) {
             if (x2 < x1) {
                 float tmp = x1;
@@ -56,18 +50,10 @@ public final class BufferedRenderUtils {
                 x2 = tmp;
             }
 
-            buffer.vertex(matrix, x1, y1 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x1, y1 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2, y2 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2, y2 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
+            buffer.addVertex(matrix, x1, y1 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x1, y1 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2, y2 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2, y2 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
         } else if ((x1 < x2 && y1 < y2) || (x2 < x1 && y2 < y1)) { // Top Left to Bottom Right line
             if (x2 < x1) {
                 float tmp = x1;
@@ -79,18 +65,10 @@ public final class BufferedRenderUtils {
                 y2 = tmp;
             }
 
-            buffer.vertex(matrix, x1 + halfWidth, y1 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x1 - halfWidth, y1 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 + halfWidth, y2 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 - halfWidth, y2 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
+            buffer.addVertex(matrix, x1 + halfWidth, y1 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x1 - halfWidth, y1 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 + halfWidth, y2 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 - halfWidth, y2 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
         } else { // Top Right to Bottom Left Line
             if (x1 < x2) {
                 float tmp = x1;
@@ -102,18 +80,10 @@ public final class BufferedRenderUtils {
                 y2 = tmp;
             }
 
-            buffer.vertex(matrix, x1 + halfWidth, y1 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x1 - halfWidth, y1 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 + halfWidth, y2 + halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
-            buffer.vertex(matrix, x2 - halfWidth, y2 - halfWidth, z)
-                    .color(color.r, color.g, color.b, color.a)
-                    .endVertex();
+            buffer.addVertex(matrix, x1 + halfWidth, y1 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x1 - halfWidth, y1 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 + halfWidth, y2 + halfWidth, z).setColor(color.r, color.g, color.b, color.a);
+            buffer.addVertex(matrix, x2 - halfWidth, y2 - halfWidth, z).setColor(color.r, color.g, color.b, color.a);
         }
     }
 
@@ -146,16 +116,102 @@ public final class BufferedRenderUtils {
 
         VertexConsumer buffer = bufferSource.getBuffer(CustomRenderType.POSITION_COLOR_QUAD);
 
-        buffer.vertex(matrix, x, y + height, z)
-                .color(color.r, color.g, color.b, color.a)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y + height, z)
-                .color(color.r, color.g, color.b, color.a)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y, z)
-                .color(color.r, color.g, color.b, color.a)
-                .endVertex();
-        buffer.vertex(matrix, x, y, z).color(color.r, color.g, color.b, color.a).endVertex();
+        buffer.addVertex(matrix, x, y + height, z).setColor(color.r, color.g, color.b, color.a);
+        buffer.addVertex(matrix, x + width, y + height, z).setColor(color.r, color.g, color.b, color.a);
+        buffer.addVertex(matrix, x + width, y, z).setColor(color.r, color.g, color.b, color.a);
+        buffer.addVertex(matrix, x, y, z).setColor(color.r, color.g, color.b, color.a);
+    }
+
+    public static void drawMulticoloredRectBorders(
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            List<CustomColor> colors,
+            float x,
+            float y,
+            float z,
+            float width,
+            float height,
+            float externalLineWidth,
+            float internalLineWidth) {
+        if (colors.size() == 1) {
+            drawRectBorders(
+                    poseStack, bufferSource, colors.getFirst(), x, y, x + width, y + height, z, externalLineWidth);
+            return;
+        }
+        float splitX = width / (colors.size() - 1);
+
+        for (int i = 0; i < colors.size(); i++) {
+            CustomColor color = colors.get(i);
+            float leftX = Mth.clamp(x + splitX * (i - 1), x, x + width);
+            float centerX = Mth.clamp(x + splitX * i, x, x + width);
+            float rightX = Mth.clamp(x + splitX * (i + 1), x, x + width);
+
+            // bottom left to bottom center (always drawn)
+            drawLine(poseStack, bufferSource, color, leftX, y + height, centerX, y + height, z, externalLineWidth);
+            // bottom center to top right (drawn on i!=colors.size()-1)
+            drawLine(
+                    poseStack,
+                    bufferSource,
+                    color,
+                    centerX,
+                    y + height,
+                    rightX,
+                    y,
+                    z,
+                    (i != colors.size() - 1 ? internalLineWidth : externalLineWidth));
+            // top right to top center (always drawn)
+            drawLine(poseStack, bufferSource, color, rightX, y, centerX, y, z, externalLineWidth);
+            // top center to bottom left (drawn on i!=0)
+            drawLine(
+                    poseStack,
+                    bufferSource,
+                    color,
+                    centerX,
+                    y,
+                    leftX,
+                    y + height,
+                    z,
+                    (i != 0 ? internalLineWidth : externalLineWidth));
+        }
+    }
+
+    /**
+     * Draws a rectangle with multiple colors, each being an equal-ish portion of the rectangle as a parallelogram
+     */
+    public static void drawMulticoloredRect(
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            List<CustomColor> colors,
+            float x,
+            float y,
+            float z,
+            float width,
+            float height) {
+        if (colors.size() == 1) {
+            drawRect(poseStack, bufferSource, colors.getFirst(), x, y, z, width, height);
+            return;
+        }
+        Matrix4f matrix = poseStack.last().pose();
+
+        VertexConsumer buffer = bufferSource.getBuffer(CustomRenderType.POSITION_COLOR_QUAD);
+
+        float splitX = width / (colors.size() - 1);
+
+        for (int i = 0; i < colors.size(); i++) {
+            CustomColor color = colors.get(i);
+            float leftX = Mth.clamp(x + splitX * (i - 1), x, x + width);
+            float centerX = Mth.clamp(x + splitX * i, x, x + width);
+            float rightX = Mth.clamp(x + splitX * (i + 1), x, x + width);
+
+            // bottom left
+            buffer.addVertex(matrix, leftX, y + height, z).setColor(color.r, color.g, color.b, color.a);
+            // bottom right
+            buffer.addVertex(matrix, centerX, y + height, z).setColor(color.r, color.g, color.b, color.a);
+            // top right
+            buffer.addVertex(matrix, rightX, y, z).setColor(color.r, color.g, color.b, color.a);
+            // top left
+            buffer.addVertex(matrix, centerX, y, z).setColor(color.r, color.g, color.b, color.a);
+        }
     }
 
     public static void drawColoredTexturedRect(
@@ -175,22 +231,16 @@ public final class BufferedRenderUtils {
 
         float[] colorArray = color.asFloatArray();
 
-        buffer.vertex(matrix, x, y + height, z)
-                .color(colorArray[0], colorArray[1], colorArray[2], alpha)
-                .uv(0, 1)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y + height, z)
-                .color(colorArray[0], colorArray[1], colorArray[2], alpha)
-                .uv(1, 1)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y, z)
-                .color(colorArray[0], colorArray[1], colorArray[2], alpha)
-                .uv(1, 0)
-                .endVertex();
-        buffer.vertex(matrix, x, y, z)
-                .color(colorArray[0], colorArray[1], colorArray[2], alpha)
-                .uv(0, 0)
-                .endVertex();
+        buffer.addVertex(matrix, x, y + height, z)
+                .setUv(0, 1)
+                .setColor(colorArray[0], colorArray[1], colorArray[2], alpha);
+        buffer.addVertex(matrix, x + width, y + height, z)
+                .setUv(1, 1)
+                .setColor(colorArray[0], colorArray[1], colorArray[2], alpha);
+        buffer.addVertex(matrix, x + width, y, z)
+                .setUv(1, 0)
+                .setColor(colorArray[0], colorArray[1], colorArray[2], alpha);
+        buffer.addVertex(matrix, x, y, z).setUv(0, 0).setColor(colorArray[0], colorArray[1], colorArray[2], alpha);
     }
 
     public static void drawTexturedRect(
@@ -256,16 +306,10 @@ public final class BufferedRenderUtils {
 
         VertexConsumer buffer = bufferSource.getBuffer(CustomRenderType.getPositionTextureQuad(tex));
 
-        buffer.vertex(matrix, x, y + height, z)
-                .uv(uOffset * uScale, (vOffset + v) * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y + height, z)
-                .uv((uOffset + u) * uScale, (vOffset + v) * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y, z)
-                .uv((uOffset + u) * uScale, vOffset * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x, y, z).uv(uOffset * uScale, vOffset * vScale).endVertex();
+        buffer.addVertex(matrix, x, y + height, z).setUv(uOffset * uScale, (vOffset + v) * vScale);
+        buffer.addVertex(matrix, x + width, y + height, z).setUv((uOffset + u) * uScale, (vOffset + v) * vScale);
+        buffer.addVertex(matrix, x + width, y, z).setUv((uOffset + u) * uScale, vOffset * vScale);
+        buffer.addVertex(matrix, x, y, z).setUv(uOffset * uScale, vOffset * vScale);
     }
 
     public static void drawTexturedRectWithColor(
@@ -291,22 +335,19 @@ public final class BufferedRenderUtils {
 
         VertexConsumer buffer = bufferSource.getBuffer(CustomRenderType.getPositionColorTextureQuad(tex));
 
-        buffer.vertex(matrix, x, y + height, z)
-                .color(color.r, color.g, color.b, color.a)
-                .uv(uOffset * uScale, (vOffset + v) * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y + height, z)
-                .color(color.r, color.g, color.b, color.a)
-                .uv((uOffset + u) * uScale, (vOffset + v) * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x + width, y, z)
-                .color(color.r, color.g, color.b, color.a)
-                .uv((uOffset + u) * uScale, vOffset * vScale)
-                .endVertex();
-        buffer.vertex(matrix, x, y, z)
-                .color(color.r, color.g, color.b, color.a)
-                .uv(uOffset * uScale, vOffset * vScale)
-                .endVertex();
+        buffer.addVertex(matrix, x, y + height, z)
+                .setUv(uOffset * uScale, (vOffset + v) * vScale)
+                .setColor(color.r, color.g, color.b, color.a);
+        buffer.addVertex(matrix, x + width, y + height, z)
+                .setUv((uOffset + u) * uScale, (vOffset + v) * vScale)
+                .setColor(color.r, color.g, color.b, color.a);
+        buffer.addVertex(matrix, x + width, y, z)
+                .setUv((uOffset + u) * uScale, vOffset * vScale)
+                .setColor(color.r, color.g, color.b, color.a);
+
+        buffer.addVertex(matrix, x, y, z)
+                .setUv(uOffset * uScale, vOffset * vScale)
+                .setColor(color.r, color.g, color.b, color.a);
     }
 
     /**
@@ -402,22 +443,10 @@ public final class BufferedRenderUtils {
             }
         }
 
-        buffer.vertex(matrix, xMin, yMin, 0)
-                .color(customColor.asInt())
-                .uv(txMin, tyMin)
-                .endVertex();
-        buffer.vertex(matrix, xMin, yMax, 0)
-                .color(customColor.asInt())
-                .uv(txMin, tyMax)
-                .endVertex();
-        buffer.vertex(matrix, xMax, yMax, 0)
-                .color(customColor.asInt())
-                .uv(txMax, tyMax)
-                .endVertex();
-        buffer.vertex(matrix, xMax, yMin, 0)
-                .color(customColor.asInt())
-                .uv(txMax, tyMin)
-                .endVertex();
+        buffer.addVertex(matrix, xMin, yMin, 0).setUv(txMin, tyMin).setColor(customColor.asInt());
+        buffer.addVertex(matrix, xMin, yMax, 0).setUv(txMin, tyMax).setColor(customColor.asInt());
+        buffer.addVertex(matrix, xMax, yMax, 0).setUv(txMax, tyMax).setColor(customColor.asInt());
+        buffer.addVertex(matrix, xMax, yMin, 0).setUv(txMax, tyMin).setColor(customColor.asInt());
     }
 
     /**
@@ -508,10 +537,10 @@ public final class BufferedRenderUtils {
             }
         }
 
-        buffer.vertex(matrix, xMin, yMin, 0).uv(txMin, tyMin).endVertex();
-        buffer.vertex(matrix, xMin, yMax, 0).uv(txMin, tyMax).endVertex();
-        buffer.vertex(matrix, xMax, yMax, 0).uv(txMax, tyMax).endVertex();
-        buffer.vertex(matrix, xMax, yMin, 0).uv(txMax, tyMin).endVertex();
+        buffer.addVertex(matrix, xMin, yMin, 0).setUv(txMin, tyMin);
+        buffer.addVertex(matrix, xMin, yMax, 0).setUv(txMin, tyMax);
+        buffer.addVertex(matrix, xMax, yMax, 0).setUv(txMax, tyMax);
+        buffer.addVertex(matrix, xMax, yMin, 0).setUv(txMax, tyMin);
     }
 
     public static void drawProgressBarBackground(
@@ -539,10 +568,10 @@ public final class BufferedRenderUtils {
                 tyMin = (float) Math.min(textureY1, textureY2) / texture.height(),
                 tyMax = (float) Math.max(textureY1, textureY2) / texture.height();
 
-        buffer.vertex(matrix, xMin, yMin, 0).uv(txMin, tyMin).endVertex();
-        buffer.vertex(matrix, xMin, yMax, 0).uv(txMin, tyMax).endVertex();
-        buffer.vertex(matrix, xMax, yMax, 0).uv(txMax, tyMax).endVertex();
-        buffer.vertex(matrix, xMax, yMin, 0).uv(txMax, tyMin).endVertex();
+        buffer.addVertex(matrix, xMin, yMin, 0).setUv(txMin, tyMin);
+        buffer.addVertex(matrix, xMin, yMax, 0).setUv(txMin, tyMax);
+        buffer.addVertex(matrix, xMax, yMax, 0).setUv(txMax, tyMax);
+        buffer.addVertex(matrix, xMax, yMin, 0).setUv(txMax, tyMin);
     }
 
     public static void createMask(

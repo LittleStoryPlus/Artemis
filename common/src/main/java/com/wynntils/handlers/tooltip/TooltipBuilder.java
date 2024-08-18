@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.handlers.tooltip;
@@ -83,7 +83,7 @@ public abstract class TooltipBuilder {
             StyledText codedLine = StyledText.fromComponent(loreLine).getNormalized();
 
             if (!footerStarted) {
-                if (codedLine.matches(WynnItemParser.SET_BONUS_PATTEN)) {
+                if (codedLine.matches(WynnItemParser.SET_BONUS_PATTERN)) {
                     headerEnded = true;
                     footerStarted = true;
                 } else {
@@ -128,7 +128,7 @@ public abstract class TooltipBuilder {
         if (foundSkills && !foundIdentifications) {
             // If there were skills but no identifications,
             // then the footer is missing a blank line
-            footer.add(0, Component.literal(""));
+            footer.addFirst(Component.literal(""));
         }
 
         return Pair.of(header, footer);

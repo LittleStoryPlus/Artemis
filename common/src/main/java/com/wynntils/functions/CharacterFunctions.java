@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2022-2023.
+ * Copyright © Wynntils 2022-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.functions;
@@ -28,41 +28,10 @@ public class CharacterFunctions {
         }
     }
 
-    public static class CappedSoulPointsFunction extends Function<CappedValue> {
-        @Override
-        public CappedValue getValue(FunctionArguments arguments) {
-            return Models.CharacterStats.getSoulPoints();
-        }
-    }
-
     public static class SprintFunction extends Function<CappedValue> {
         @Override
         public CappedValue getValue(FunctionArguments arguments) {
             return Models.CharacterStats.getSprint();
-        }
-    }
-
-    public static class SoulpointFunction extends Function<Integer> {
-        @Override
-        public Integer getValue(FunctionArguments arguments) {
-            return Models.CharacterStats.getSoulPoints().current();
-        }
-
-        @Override
-        protected List<String> getAliases() {
-            return List.of("sp");
-        }
-    }
-
-    public static class SoulpointMaxFunction extends Function<Integer> {
-        @Override
-        public Integer getValue(FunctionArguments arguments) {
-            return Models.CharacterStats.getSoulPoints().max();
-        }
-
-        @Override
-        protected List<String> getAliases() {
-            return List.of("sp_max");
         }
     }
 
@@ -87,47 +56,35 @@ public class CharacterFunctions {
         }
     }
 
-    public static class SoulpointTimerFunction extends Function<String> {
+    public static class StatusEffectsFunction extends Function<String> {
         @Override
         public String getValue(FunctionArguments arguments) {
-            int totalSeconds = Models.CharacterStats.getTicksToNextSoulPoint() / 20;
+            List<String> statusEffectsList = Models.StatusEffect.getStatusEffects().stream()
+                    .map(statusEffect -> statusEffect.asString().getString())
+                    .toList();
 
-            int seconds = totalSeconds % 60;
-            int minutes = totalSeconds / 60;
-            return String.format("%d:%02d", minutes, seconds);
-        }
-
-        @Override
-        protected List<String> getAliases() {
-            return List.of("sp_timer");
+            return String.join("\n", statusEffectsList);
         }
     }
 
-    public static class SoulpointTimerMFunction extends Function<Integer> {
+    public static class StatusEffectActiveFunction extends Function<Boolean> {
         @Override
-        public Integer getValue(FunctionArguments arguments) {
-            int totalSeconds = Models.CharacterStats.getTicksToNextSoulPoint() / 20;
-
-            return totalSeconds / 60;
+        public Boolean getValue(FunctionArguments arguments) {
+            String query = arguments.getArgument("query").getStringValue();
+            return Models.StatusEffect.getStatusEffects().stream()
+                    .anyMatch(statusEffect ->
+                            statusEffect.getName().getStringWithoutFormatting().equals(query));
         }
 
         @Override
         protected List<String> getAliases() {
-            return List.of("sp_timer_m");
-        }
-    }
-
-    public static class SoulpointTimerSFunction extends Function<Integer> {
-        @Override
-        public Integer getValue(FunctionArguments arguments) {
-            int totalSeconds = Models.CharacterStats.getTicksToNextSoulPoint() / 20;
-
-            return totalSeconds % 60;
+            return List.of("contains_effect");
         }
 
         @Override
-        protected List<String> getAliases() {
-            return List.of("sp_timer_s");
+        public FunctionArguments.Builder getArgumentsBuilder() {
+            return new FunctionArguments.RequiredArgumentBuilder(
+                    List.of(new FunctionArguments.Argument<>("query", String.class, null)));
         }
     }
 
@@ -202,6 +159,60 @@ public class CharacterFunctions {
         @Override
         public String getValue(FunctionArguments arguments) {
             return Models.Character.getId();
+        }
+    }
+
+    public static class CappedAwakenedProgressFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.awakenedBar.isActive()
+                    ? Models.BossBar.awakenedBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
+        }
+    }
+
+    public static class CappedBloodPoolFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.bloodPoolBar.isActive()
+                    ? Models.BossBar.bloodPoolBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
+        }
+    }
+
+    public static class CappedCorruptedFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.corruptedBar.isActive()
+                    ? Models.BossBar.corruptedBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
+        }
+    }
+
+    public static class CappedFocusFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.focusBar.isActive()
+                    ? Models.BossBar.focusBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
+        }
+    }
+
+    public static class CappedManaBankFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.manaBankBar.isActive()
+                    ? Models.BossBar.manaBankBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
+        }
+    }
+
+    public static class CappedOphanimFunction extends Function<CappedValue> {
+        @Override
+        public CappedValue getValue(FunctionArguments arguments) {
+            return Models.BossBar.ophanimBar.isActive()
+                    ? Models.BossBar.ophanimBar.getBarProgress().value()
+                    : CappedValue.EMPTY;
         }
     }
 }

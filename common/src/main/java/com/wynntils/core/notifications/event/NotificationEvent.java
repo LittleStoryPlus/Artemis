@@ -1,11 +1,11 @@
 /*
- * Copyright © Wynntils 2022-2023.
+ * Copyright © Wynntils 2022-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.core.notifications.event;
 
 import com.wynntils.core.notifications.MessageContainer;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class NotificationEvent extends Event {
     private final MessageContainer messageContainer;
@@ -26,6 +26,12 @@ public class NotificationEvent extends Event {
 
     public static class Edit extends NotificationEvent {
         public Edit(MessageContainer messageContainer) {
+            super(messageContainer);
+        }
+    }
+
+    public static class Remove extends NotificationEvent {
+        public Remove(MessageContainer messageContainer) {
             super(messageContainer);
         }
     }

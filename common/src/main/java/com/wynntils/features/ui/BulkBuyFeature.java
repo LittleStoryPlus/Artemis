@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2023.
+ * Copyright © Wynntils 2023-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.features.ui;
@@ -27,8 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
 @ConfigCategory(Category.UI)
 public class BulkBuyFeature extends Feature {
@@ -91,8 +91,8 @@ public class BulkBuyFeature extends Feature {
             if (!priceMatcher.find()) continue;
 
             int newPrice = Integer.parseInt(priceMatcher.group(1)) * bulkBuyAmount.get();
-            StyledText newLine = StyledText.fromString(oldLine.getString()
-                    .replace(priceMatcher.group(1), BULK_BUY_ACTIVE_COLOR + Integer.toString(newPrice)));
+            StyledText newLine = StyledText.fromString(oldLine.getString())
+                    .replaceFirst(priceMatcher.group(1), BULK_BUY_ACTIVE_COLOR + Integer.toString(newPrice));
             if (newPrice > Models.Emerald.getAmountInInventory()) {
                 newLine = StyledText.fromString(
                         newLine.getString().replace("a✔", "c✖")); // Replace green checkmark with red x
@@ -101,7 +101,7 @@ public class BulkBuyFeature extends Feature {
             break;
         }
         if (returnable == oldLore) {
-            WynntilsMod.warn("Could not find price for " + oldLore.get(0).getString());
+            WynntilsMod.warn("Could not find price for " + oldLore.getFirst().getString());
         }
         return returnable;
     }

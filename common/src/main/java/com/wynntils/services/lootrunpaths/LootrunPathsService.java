@@ -1,5 +1,5 @@
 /*
- * Copyright © Wynntils 2022-2023.
+ * Copyright © Wynntils 2022-2024.
  * This file is released under LGPLv3. See LICENSE for full license details.
  */
 package com.wynntils.services.lootrunpaths;
@@ -17,6 +17,7 @@ import com.wynntils.mc.event.PlayerInteractEvent;
 import com.wynntils.mc.event.RenderLevelEvent;
 import com.wynntils.mc.event.ScreenOpenedEvent;
 import com.wynntils.mc.event.TickEvent;
+import com.wynntils.models.containers.containers.reward.LootChestContainer;
 import com.wynntils.services.lootrunpaths.event.LootrunPathCacheRefreshEvent;
 import com.wynntils.services.lootrunpaths.type.LootrunNote;
 import com.wynntils.services.lootrunpaths.type.LootrunPath;
@@ -42,7 +43,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public final class LootrunPathsService extends Service {
     public static final File LOOTRUNS = WynntilsMod.getModStorageDir("lootruns");
@@ -264,7 +265,7 @@ public final class LootrunPathsService extends Service {
 
         if (activeLootrun.path() == null || activeLootrun.path().points().isEmpty()) return null;
 
-        return activeLootrun.path().points().get(0);
+        return activeLootrun.path().points().getFirst();
     }
 
     public LootrunSaveResult saveCurrentLootrun(String name) {
@@ -280,7 +281,7 @@ public final class LootrunPathsService extends Service {
 
     @SubscribeEvent
     public void onRenderLastLevel(RenderLevelEvent.Post event) {
-        PoseStack poseStack = event.getPoseStack();
+        PoseStack poseStack = new PoseStack();
 
         LootrunRenderer.renderLootrun(
                 poseStack,
@@ -313,7 +314,7 @@ public final class LootrunPathsService extends Service {
     public void onOpen(ScreenOpenedEvent.Post event) {
         if (state != LootrunState.RECORDING) return;
         if (recordingInformation.getLastChest() == null) return;
-        if (!Models.Container.isLootChest(event.getScreen())) return;
+        if (!(Models.Container.getCurrentContainer() instanceof LootChestContainer)) return;
 
         recording.chests().add(recordingInformation.getLastChest());
         recordingInformation.setDirty(true);
