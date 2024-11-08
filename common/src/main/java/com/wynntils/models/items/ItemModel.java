@@ -13,6 +13,7 @@ import com.wynntils.handlers.item.ItemHandler;
 import com.wynntils.models.items.annotators.game.AmplifierAnnotator;
 import com.wynntils.models.items.annotators.game.AspectAnnotator;
 import com.wynntils.models.items.annotators.game.CharmAnnotator;
+import com.wynntils.models.items.annotators.game.CorruptedCacheAnnotator;
 import com.wynntils.models.items.annotators.game.CraftedConsumableAnnotator;
 import com.wynntils.models.items.annotators.game.CraftedGearAnnotator;
 import com.wynntils.models.items.annotators.game.DungeonKeyAnnotator;
@@ -42,6 +43,7 @@ import com.wynntils.models.items.annotators.gui.CharacterAnnotator;
 import com.wynntils.models.items.annotators.gui.CosmeticTierAnnotator;
 import com.wynntils.models.items.annotators.gui.DailyRewardMultiplierAnnotator;
 import com.wynntils.models.items.annotators.gui.IngredientPouchAnnotator;
+import com.wynntils.models.items.annotators.gui.LeaderboardSeasonAnnotator;
 import com.wynntils.models.items.annotators.gui.SeaskipperDestinationAnnotator;
 import com.wynntils.models.items.annotators.gui.ServerAnnotator;
 import com.wynntils.models.items.annotators.gui.SkillCrystalAnnotator;
@@ -64,10 +66,12 @@ public class ItemModel extends Model {
         Handlers.Item.registerAnnotator(new CharmAnnotator());
         Handlers.Item.registerAnnotator(new IngredientAnnotator());
         Handlers.Item.registerAnnotator(new MaterialAnnotator());
+        Handlers.Item.registerAnnotator(new UnknownGearAnnotator());
 
         // Then alphabetically
         Handlers.Item.registerAnnotator(new AmplifierAnnotator());
         Handlers.Item.registerAnnotator(new AspectAnnotator());
+        Handlers.Item.registerAnnotator(new CorruptedCacheAnnotator());
         Handlers.Item.registerAnnotator(new CraftedConsumableAnnotator());
         Handlers.Item.registerAnnotator(new CraftedGearAnnotator());
         Handlers.Item.registerAnnotator(new DungeonKeyAnnotator());
@@ -92,6 +96,7 @@ public class ItemModel extends Model {
         Handlers.Item.registerAnnotator(new CosmeticTierAnnotator());
         Handlers.Item.registerAnnotator(new DailyRewardMultiplierAnnotator());
         Handlers.Item.registerAnnotator(new IngredientPouchAnnotator());
+        Handlers.Item.registerAnnotator(new LeaderboardSeasonAnnotator());
         Handlers.Item.registerAnnotator(new SeaskipperDestinationAnnotator());
         Handlers.Item.registerAnnotator(new ServerAnnotator());
         Handlers.Item.registerAnnotator(new SkillCrystalAnnotator());
@@ -101,7 +106,6 @@ public class ItemModel extends Model {
 
         // ItemAnnotators
         // This must be done last
-        Handlers.Item.registerAnnotator(new UnknownGearAnnotator());
         Handlers.Item.registerAnnotator(new MiscAnnotator());
         Handlers.Item.registerAnnotator(new FallbackAnnotator());
     }

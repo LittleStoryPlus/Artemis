@@ -4,11 +4,10 @@
  */
 import com.wynntils.features.chat.GuildRankReplacementFeature;
 import com.wynntils.features.chat.MessageFilterFeature;
-import com.wynntils.features.chat.RevealNicknamesFeature;
 import com.wynntils.features.inventory.PersonalStorageUtilitiesFeature;
 import com.wynntils.features.redirects.ChatRedirectFeature;
-import com.wynntils.features.trademarket.TradeMarketAutoOpenChatFeature;
 import com.wynntils.features.trademarket.TradeMarketPriceMatchFeature;
+import com.wynntils.features.trademarket.TradeMarketQuickSearchFeature;
 import com.wynntils.features.ui.BulkBuyFeature;
 import com.wynntils.handlers.chat.ChatHandler;
 import com.wynntils.handlers.chat.type.RecipientType;
@@ -19,26 +18,29 @@ import com.wynntils.models.character.CharacterSelectionModel;
 import com.wynntils.models.containers.ContainerModel;
 import com.wynntils.models.damage.DamageModel;
 import com.wynntils.models.damage.label.DamageLabelParser;
-import com.wynntils.models.items.annotators.game.GearAnnotator;
+import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.items.annotators.game.IngredientAnnotator;
 import com.wynntils.models.items.annotators.game.RuneAnnotator;
 import com.wynntils.models.items.annotators.gui.AbilityTreeAnnotator;
 import com.wynntils.models.items.annotators.gui.ArchetypeAbilitiesAnnotator;
 import com.wynntils.models.items.annotators.gui.CharacterAnnotator;
+import com.wynntils.models.items.annotators.gui.LeaderboardSeasonAnnotator;
 import com.wynntils.models.items.annotators.gui.SkillPointAnnotator;
 import com.wynntils.models.items.annotators.gui.TerritoryUpgradeAnnotator;
 import com.wynntils.models.npc.label.NpcLabelParser;
 import com.wynntils.models.players.FriendsModel;
 import com.wynntils.models.players.GuildModel;
 import com.wynntils.models.players.PartyModel;
-import com.wynntils.models.players.label.GuildSeasonLeaderboardLabelParser;
+import com.wynntils.models.raid.RaidModel;
 import com.wynntils.models.statuseffects.StatusEffectModel;
 import com.wynntils.models.territories.GuildAttackTimerModel;
 import com.wynntils.models.trademarket.TradeMarketModel;
 import com.wynntils.models.war.bossbar.WarTowerBar;
 import com.wynntils.models.worlds.BombModel;
+import com.wynntils.models.worlds.WorldStateModel;
 import com.wynntils.models.worlds.bossbars.InfoBar;
 import com.wynntils.models.wynnitem.parsing.WynnItemParser;
+import com.wynntils.utils.mc.StyledTextUtils;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 import net.minecraft.SharedConstants;
@@ -109,10 +111,20 @@ public class TestRegex {
     @Test
     public void ArchetypeAbilitiesAnnotator_ARCHETYPE_NAME() {
         PatternTester p = new PatternTester(ArchetypeAbilitiesAnnotator.class, "ARCHETYPE_NAME");
-        p.shouldMatch("§e§lBoltslinger Archetype");
-        p.shouldMatch("§d§lSharpshooter Archetype");
-        p.shouldMatch("§2§lTrapper Archetype");
-        p.shouldMatch("§d§lLight Bender Archetype");
+        p.shouldMatch("§#eb3dfeff§lSharpshooter Archetype");
+        p.shouldMatch("§#dae069ff§lBoltslinger Archetype");
+        p.shouldMatch("§#87dd47ff§lTrapper Archetype");
+        p.shouldMatch("§#60c5cdff§lRiftwalker Archetype");
+        p.shouldMatch("§#eb3dfeff§lArcanist Archetype");
+        p.shouldMatch("§#f0c435ff§lSummoner Archetype");
+        p.shouldMatch("§#87dd47ff§lRitualist Archetype");
+        p.shouldMatch("§#ffa057ff§lAcolyte Archetype");
+        p.shouldMatch("§#ffa057ff§lFallen Archetype");
+        p.shouldMatch("§#dae069ff§lBattle Monk Archetype");
+        p.shouldMatch("§#60c5cdff§lPaladin Archetype");
+        p.shouldMatch("§#ffa057ff§lShadestepper Archetype");
+        p.shouldMatch("§#eb3dfeff§lTrickster Archetype");
+        p.shouldMatch("§#b8b0b0ff§lAcrobat Archetype");
     }
 
     @Test
@@ -130,9 +142,13 @@ public class TestRegex {
     public void BombModel_BOMB_THROWN_PATTERN() {
         PatternTester p = new PatternTester(BombModel.class, "BOMB_THROWN_PATTERN");
         p.shouldMatch(
-                "§bExampleUser1§3 has thrown a §bProfession XP Bomb§3! The entire server gets §bdouble profession xp §3for §b20 minutes§3!");
+                "§bExampleUser§3 has thrown a §bProfession Speed Bomb§3! §bResource respawn time/Crafting Resource requirements are halved§3, and the entire server gets §bdouble Crafting/Gathering Speed§3 for §b10 minutes§3!");
         p.shouldMatch(
-                "§bExampleUser1§3 has thrown a §bProfession Speed Bomb§3! The entire server gets §bdouble Crafting/Gathering Speed, and Resource respawn time/Crafting Resource requirements are halved §3for §b10 minutes§3!");
+                "§b§oExampleNickname§3 has thrown a §bProfession Speed Bomb§3! §bResource respawn time/Crafting Resource requirements are halved§3, and the entire server gets §bdouble Crafting/Gathering Speed§3 for §b10 minutes§3!");
+        p.shouldMatch(
+                "§bExampleUser§3 has thrown a §bProfession XP Bomb§3! The entire server gets §bdouble profession xp§3 for §b20 minutes§3!");
+        p.shouldMatch(
+                "§b§oExampleNickname§3 has thrown a §bProfession XP Bomb§3! The entire server gets §bdouble profession xp§3 for §b20 minutes§3!");
     }
 
     @Test
@@ -467,9 +483,12 @@ public class TestRegex {
     @Test
     public void InfoBar_TERRITORY_INFO_PATTERN() {
         PatternTester p = new PatternTester(InfoBar.class, "TERRITORY_INFO_PATTERN");
-        p.shouldMatch("§aLutho§2 [PROF]");
-        p.shouldMatch("§bCorkus City§3 [HOC]");
-        p.shouldMatch("§cDetlas§4 [AVO]");
+        p.shouldMatch(
+                "§aNexus of Light§2 \uE060\uDAFF\uDFFF\uE03C\uDAFF\uDFFF\uE034\uDAFF\uDFFF\uE03B\uDAFF\uDFFF\uE043\uDAFF\uDFFF\uE062\uDAFF\uDFE6§f\uE00C\uE004\uE00B\uE013\uDB00\uDC02"); // MELT tag
+        p.shouldMatch(
+                "§bFleris Cranny§3 \uE060\uDAFF\uDFFF\uE037\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE062\uDAFF\uDFEC§f\uE007\uE00E\uE002\uDB00\uDC02"); // HOC tag
+        p.shouldMatch(
+                "§cCinfras§4 \uE060\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE062\uDAFF\uDFEE§f\uE008\uE002\uE00E\uDB00\uDC02"); // ICO tag
     }
 
     @Test
@@ -493,6 +512,13 @@ public class TestRegex {
         p.shouldMatch("§710s Healed: §f12% §3[§e⏺§b⏺§e⏺§b⏺⏺⏺§3]");
         p.shouldMatch("§710s Healed: §f0% §4[§c⏺⏺⏺§e⏺⏺⏺§4]");
         p.shouldMatch("§710s Healed: §f0% §8[]");
+    }
+
+    @Test
+    public void LeaderboardSeasonAnnotator_SEASON_PATTERN() {
+        PatternTester p = new PatternTester(LeaderboardSeasonAnnotator.class, "SEASON_PATTERN");
+        p.shouldMatch("§d§lSeason 0");
+        p.shouldMatch("§d§lSeason 20");
     }
 
     @Test
@@ -823,6 +849,13 @@ public class TestRegex {
     }
 
     @Test
+    public void WynnItemParser_QUEST_REQ_PATTERN() {
+        PatternTester p = new PatternTester(WynnItemParser.class, "QUEST_REQ_PATTERN");
+        p.shouldMatch("§a✔§7 Quest Req: The Qira Hive");
+        p.shouldMatch("§c✖§7 Quest Req: Realm of Light V - The Realm of Light");
+    }
+
+    @Test
     public void WynnItemParser_MISC_REQ_PATTERN() {
         PatternTester p = new PatternTester(WynnItemParser.class, "MISC_REQ_PATTERN");
         p.shouldMatch("§a✔§7 Quest Req: The Qira Hive");
@@ -843,6 +876,13 @@ public class TestRegex {
     }
 
     @Test
+    public void RaidModel_RAID_BUFF_PATTERN() {
+        PatternTester p = new PatternTester(RaidModel.class, "RAID_CHOOSE_BUFF_PATTERN");
+        p.shouldMatch(
+                "§#d6401eff\uE009\uE002 §#fa7f63ffDanzxms§#d6401eff has chosen the §#fa7f63ffStonewalker III§#d6401eff buff!");
+    }
+
+    @Test
     public void WynnItemParser_CRAFTED_ITEM_NAME_PATTERN() {
         PatternTester p = new PatternTester(WynnItemParser.class, "CRAFTED_ITEM_NAME_PATTERN");
         p.shouldMatch("§3§otest item§b§o [24%]À");
@@ -857,15 +897,8 @@ public class TestRegex {
     }
 
     @Test
-    public void GuildSeasonLeaderboardLabelParser_GUILD_SEASON_LEADERBOARD_PATTERN() {
-        PatternTester p = new PatternTester(GuildSeasonLeaderboardLabelParser.class, "GUILD_SEASON_LEADERBOARD_LABEL");
-        p.shouldMatch("§6§l1§7 - §bIdiot Co§d (11 396 656 SR)");
-        p.shouldMatch("§62§7 - §bSequoia§d (11 057 047 SR)");
-    }
-
-    @Test
-    public void GearAnnotator_GEAR_PATTERN() {
-        PatternTester p = new PatternTester(GearAnnotator.class, "GEAR_PATTERN");
+    public void GearModel_GEAR_PATTERN() {
+        PatternTester p = new PatternTester(GearModel.class, "GEAR_PATTERN");
 
         // Unidentified
         p.shouldMatch("§5Unidentified §f⬡ §5Shiny Crusade Sabatons");
@@ -900,21 +933,22 @@ public class TestRegex {
     }
 
     @Test
-    public void RevealNicknamesFeature_NICKNAME_PATTERN() {
-        PatternTester p = new PatternTester(RevealNicknamesFeature.class, "NICKNAME_PATTERN");
+    public void StyledTextUtils_NICKNAME_PATTERN() {
+        PatternTester p = new PatternTester(StyledTextUtils.class, "NICKNAME_PATTERN");
 
         p.shouldMatch("§fbol§7's real username is §fbolyai");
         p.shouldMatch("§fbol's§7 real username is §fbolyai");
     }
 
     @Test
-    public void TradeMarketAutoOpenChatFeature_TYPE_TO_CHAT_PATTERN() {
-        PatternTester p = new PatternTester(TradeMarketAutoOpenChatFeature.class, "TYPE_TO_CHAT_PATTERN");
+    public void TradeMarketQuickSearchFeature_TYPE_TO_CHAT_PATTERN() {
+        PatternTester p = new PatternTester(TradeMarketQuickSearchFeature.class, "TYPE_TO_CHAT_PATTERN");
 
         p.shouldMatch(
-                "§5\uE00A\uE002 \n\uE001 Type the amount you wish to buy or type \n\uE001 'cancel' to cancel:\n\uE001 ");
-        p.shouldMatch("§5\uE001 \n\uE001 Type the price in emeralds or type \n\uE001 'cancel' to cancel:\n\uE001 ");
-        p.shouldMatch("§5\uE00A\uE002 \n\uE001 Type the item name or type 'cancel' to \n\uE001 cancel:\n\uE001 ");
+                "§5\uE00A\uE002 Type the price in emeralds or formatted (e.g '10eb', '10stx 5eb') or type 'cancel' to cancel:");
+        p.shouldMatch("§5\uE001 Type the amount you wish to sell or type 'cancel' to cancel:");
+        p.shouldMatch("§5\uE001 Type the item name or type 'cancel' to cancel:");
+        p.shouldMatch("§5\uE00A\uE002 Type the amount you wish to buy or type 'cancel' to cancel:");
     }
 
     @Test
@@ -922,5 +956,12 @@ public class TestRegex {
         PatternTester p = new PatternTester(PartyModel.class, "PARTY_LIST_ALL");
         p.shouldMatch(
                 "§e󏿼󏿿󏿾 Party members: §bbolyai, §fMrRickroll, Talkair, Angel_Pup, wluma, LaMDaKiS, Tanoranko, GebutterteWurst, kristof345, §eand §fSpeedtart");
+    }
+
+    @Test
+    public void WorldStateModel_HOUSING_NAME() {
+        PatternTester p = new PatternTester(WorldStateModel.class, "HOUSING_NAME");
+        p.shouldMatch("§f  §lChiefs Of Corkus' HQ");
+        p.shouldMatch("§f  §lShadow's Home");
     }
 }

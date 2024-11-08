@@ -12,11 +12,11 @@ public enum Texture {
     // region Character Selection
     CHANGE_WORLD_BUTTON("character_selection/change_world_button.png", 26, 52),
     CHARACTER_BUTTON("character_selection/character_button.png", 104, 64),
-    CHARACTER_INFO("character_selection/character_info.png", 123, 38),
+    CHARACTER_INFO("character_selection/character_info.png", 123, 52),
     CHARACTER_LIST_BACKGROUND("character_selection/character_list_background.png", 118, 254),
-    DISCONNECT_BUTTON("character_selection/disconnect_button.png", 26, 52),
-    PLAY_BUTTON("character_selection/play_button.png", 79, 76),
-    XP_BAR("character_selection/xp_bar.png", 100, 12),
+    DISCONNECT_BUTTON("character_selection/disconnect_button.png", 26, 54),
+    PLAY_BUTTON("character_selection/play_button.png", 79, 78),
+    XP_BAR("character_selection/xp_bar.png", 77, 6),
     // endregion
 
     // region Content Book
@@ -136,8 +136,8 @@ public enum Texture {
 
     // Map
     ALCHEMIST_STATION("icons/map/alchemist_station.png", 16, 19),
-    ARMOR_MERCHANT("icons/map/armor_merchant.png", 17, 17),
     ARMORING_STATION("icons/map/armoring_station.png", 17, 17),
+    ARMOR_MERCHANT("icons/map/armor_merchant.png", 17, 17),
     BLACKSMITH("icons/map/blacksmith.png", 18, 18),
     BOOTH_SHOP("icons/map/booth_shop.png", 19, 17),
     BOSS_ALTAR("icons/map/boss_altar.png", 18, 13),
@@ -162,6 +162,7 @@ public enum Texture {
     ITEM_IDENTIFIER("icons/map/item_identifier.png", 18, 17),
     JEWELING_STATION("icons/map/jeweling_station.png", 17, 16),
     LIQUID_MERCHANT("icons/map/liquid_merchant.png", 15, 17),
+    LOOTRUN_CAMP("icons/map/lootrun_camp.png", 18, 16),
     MINING("icons/map/mining.png", 18, 14),
     PARTY_FINDER("icons/map/party_finder.png", 18, 18),
     POINTER("icons/map/pointer.png", 10, 8),
@@ -174,13 +175,14 @@ public enum Texture {
     SHRINE("icons/map/shrine.png", 18, 18),
     SIGN("icons/map/sign.png", 17, 18),
     STAR("icons/map/star.png", 18, 18),
+    PLAYER_HEAD("icons/map/player_head.png", 24, 24),
     TAILORING_STATION("icons/map/tailoring_station.png", 18, 15),
     TOOL_MERCHANT("icons/map/tool_merchant.png", 17, 15),
     TRADE_MARKET("icons/map/trade_market.png", 18, 18),
     WALL("icons/map/wall.png", 12, 16),
     WAYPOINT("icons/map/waypoint.png", 14, 18),
-    WEAPON_MERCHANT("icons/map/weapon_merchant.png", 18, 15),
     WEAPONSMITHING_STATION("icons/map/weaponsmithing_station.png", 18, 15),
+    WEAPON_MERCHANT("icons/map/weapon_merchant.png", 18, 15),
     WOODCUTTING("icons/map/woodcutting.png", 16, 17),
     WOODWORKING_STATION("icons/map/woodworking_station.png", 17, 15),
     // endregion
@@ -223,7 +225,7 @@ public enum Texture {
     // endregion
 
     // region Overlays
-    PLAYER_LIST_OVERLAY("overlays/player_list_overlay.png", 385, 229),
+    PLAYER_LIST_OVERLAY("overlays/player_list_overlay.png", 531, 248),
 
     // Bars
     BUBBLE_BAR("overlays/bars/bars_bubbles.png", 182, 60),
@@ -236,7 +238,7 @@ public enum Texture {
     // endregion
 
     // region Players
-    LEADERBOARD_BADGES("players/leaderboard_badges.png", 256, 256),
+    LEADERBOARD_BADGES("players/leaderboard_badges.png", 722, 54),
     // endregion
 
     // region Seaskipper
@@ -254,8 +256,14 @@ public enum Texture {
     TERRITORY_LOADOUT("territory_management/territory_loadout.png", 16, 16),
 
     // region UI Components
-    BACKGROUND_SPLASH("ui_components/background_splash.png", 1920, 1027),
+    BACKGROUND_SPLASH("ui_components/background_splash.png", 1920, 1009),
     BANK_PANEL("ui_components/bank_panel.png", 100, 117),
+    BULK_BUY_PANEL("ui_components/bulk_buy_panel.png", 160, 120),
+    BUTTON_BOTTOM("ui_components/button_bottom.png", 64, 60),
+    BUTTON_LEFT("ui_components/button_left.png", 48, 56),
+    BUTTON_RIGHT("ui_components/button_right.png", 48, 56),
+    BUTTON_TOP("ui_components/button_top.png", 128, 60),
+    COLOR_PICKER_BACKGROUND("ui_components/color_picker_background.png", 442, 208),
     COSMETIC_VIEWER_BACKGROUND("ui_components/cosmetics_viewer_background.png", 72, 92),
     CONTAINER_SIDEBAR("ui_components/container_sidebar.png", 25, 136),
     EMERALD_COUNT_BACKGROUND("ui_components/emerald_count_background.png", 24, 24),
@@ -265,10 +273,6 @@ public enum Texture {
     ITEM_FILTER_BACKGROUND("ui_components/item_filter_background.png", 358, 206),
     ITEM_SHARING_BACKGROUND("ui_components/item_sharing_background.png", 250, 100),
     OVERLAY_SELECTION_GUI("ui_components/overlay_selection_gui.png", 358, 206),
-    PAPER_BUTTON_BOTTOM("ui_components/paper_button_bottom.png", 64, 60),
-    PAPER_BUTTON_LEFT("ui_components/paper_button_left.png", 48, 56),
-    PAPER_BUTTON_RIGHT("ui_components/paper_button_right.png", 48, 56),
-    PAPER_BUTTON_TOP("ui_components/paper_button_top.png", 128, 60),
     QUICK_JUMP_BUTTON("ui_components/quick_jump_button.png", 16, 32),
     SCROLL_BACKGROUND("ui_components/scroll_background.png", 294, 198),
     SCROLL_BUTTON("ui_components/scroll_button.png", 7, 17),
